@@ -18,40 +18,48 @@ API REST de exemplo desenvolvida com Spring Boot, Spring Web MVC, Spring Data JP
 
 ## Configuração e execução
 
-1. Crie seu arquivo local de configuração a partir do modelo:
+As configurações da aplicação ficam em `src/main/resources/application.properties`. O arquivo define a URL do PostgreSQL (`jdbc:postgresql://localhost:5332/guedesdb`), o usuário e a senha usados localmente, e as opções do Hibernate.
+
+1. Inicie o banco de dados pelo Docker Compose:
 
    ```bash
-   cp .env.example .env
+   docker compose up -d
    ```
 
-   Edite `.env` e substitua `POSTGRES_PASSWORD` por uma senha local. O arquivo `.env` é ignorado pelo Git; não o publique nem inclua credenciais reais no repositório.
-
-2. Inicie o banco de dados:
+2. Confira os containers:
 
    ```bash
-   docker compose up --pull always -d db
+   docker compose ps
+   docker ps -a
    ```
 
-   O PostgreSQL estará disponível na porta `5332` do host. O Compose lê os valores de `.env` para configurar o banco.
+3. Para acessar o PostgreSQL dentro do container, abra um Bash e entre no `psql`. Substitua o marcador pelo usuário configurado em `application.properties`; o nome está censurado neste exemplo:
 
-3. Configure as variáveis que a aplicação Spring Boot usará. O `.env` do Compose não é carregado automaticamente pelo processo Maven.
-
-   **Linux/macOS** (na mesma sessão de terminal):
    ```bash
-   set -a
-   . ./.env
-   set +a
-   export SPRING_DATASOURCE_USERNAME="$POSTGRES_USER"
-   export SPRING_DATASOURCE_PASSWORD="$POSTGRES_PASSWORD"
+   docker exec -it postgres-spring-boot bash
+   psql -U [USUÁRIO_CENSURADO]
    ```
 
-   **Windows (PowerShell)**, defina os valores conforme seu `.env`:
-   ```powershell
-   $env:SPRING_DATASOURCE_USERNAME = "seu_usuario_local"
-   $env:SPRING_DATASOURCE_PASSWORD = "sua_senha_local"
+4. No prompt do `psql`, crie e acesse o banco configurado pela aplicação:
+
+   ```sql
+   CREATE DATABASE guedesdb;
+   \c guedesdb
    ```
 
-4. Inicie a aplicação na raiz do projeto:
+   Para criar uma tabela manualmente e consultar seus registros:
+
+   ```sql
+   CREATE TABLE exemplo (
+       id SERIAL PRIMARY KEY,
+       nome VARCHAR(100)
+   );
+   SELECT * FROM exemplo;
+   ```
+
+   A aplicação também cria as tabelas das entidades JPA ao iniciar, pois `spring.jpa.hibernate.ddl-auto` está configurado como `create-drop`.
+
+5. Inicie a aplicação na raiz do projeto:
 
    **Linux/macOS**
    ```bash
