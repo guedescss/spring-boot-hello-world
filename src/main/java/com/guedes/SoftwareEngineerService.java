@@ -7,7 +7,7 @@ import java.util.List;
 @Service
 public class SoftwareEngineerService {
 
-    private SoftwareEngineerRepository softwareEngineerRepository;
+    private final SoftwareEngineerRepository softwareEngineerRepository;
 
     public SoftwareEngineerService(
             SoftwareEngineerRepository softwareEngineerRepository
